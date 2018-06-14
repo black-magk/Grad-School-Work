@@ -1,0 +1,116 @@
+#change directory into hadoop
+
+cd $HADOOP_PREFIX
+
+#Start hadoop
+
+./hd_start
+
+#open another terminal to start hive
+
+cd $HADOOP_PREFIX
+
+./hb_start
+
+# create a directory in HAdoop
+
+bin/hdfs dfs -mkdir /MidtermPractice
+
+#copy files from share folder into directory folder in HADOOP
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/mails.csv /MidtermPratice
+
+
+
+#example of converting unix time
+
+insert overwrite table movies.sratingdate select ukey as rkey, rdate, FROM_UNIXTIME(rtime,'hh:mm:ss') as rtime, MONTH(FROM_UNIXTIME(rtime)) as rmonth, DAY(FROM_UNIXTIME(rtime))as rday from rat500 ;
+
+
+#examples of creating external tables & tables
+
+create external table Midtermpractice.mails (mid int, sender string, edate varchar(50), message_id string,subject string, body string, folder string) row format delimited fields terminated by ','stored as textfile location '/MidtermPractice';
+
+create external table movies.susers (mkey int, gender varchar(2), agegroup int, occupation int, zipcode int) row format delimited fields terminated by '\t' stored as textfile location '/movies/susers';
+
+
+#how to split a column by a delimiter example
+
+select split(edate,' ')[0], count(split(edate,' ')[0]) as Count from mails1 group by split(edate,' ')[0] order by Count DESC;
+
+
+create ﻿ create table movies.susers (rkey int, rdate DATE, rtime TIMESTAMP, rmonth int, rday int) row format delimited fields terminated by ',' stored as textfile;
+ table movies.sratingdate (ukey int, gender varchar(2), agegroup int, occupation int, zipcode int) row format delimited fields terminated by '\t' stored as textfile location '/movies/susers';
+ ﻿select u.ukey, r.rkey from  sratingdate r join susers u on u.ukey=r.rkey limit 5 ;
+ 
+ 
+ 
+ #deliminiting and removing characters from a textfile to do word mining
+ 
+ 
+ #apapers was initial load of the data
+ #aoutput takes each word in the text after delimiter and counts the letters in each and ranks them
+ 
+select split(txtline, ' ') from apapers;
+
+select explode(split(txtline, ' ')) from apapers;
+
+select explode(split(lower(txtline), ' ')) from apapers;
+
+create temporary table atemp (atemp string); 
+
+insert overwrite table atemp select explode(split(lower(txtline), ' ')) from apapers;
+
+select regexp_extract(atemp, '.*?([a-z]+).*?') from atemp;
+
+
+
+##aoutput
+create table aoutput (apap string, awordl int);
+
+insert overwrite table aoutput select apap, length(apap) as awordl from (select regexp_extract(atemp, '.*?([a-z]+).*?') as apap from atemp) bwc where apap <> ' ' group by apap order by awordl DESC limit 10;
+
+
+
+##from apapers(aka all the txt we began to break it up into n grams)
+
+create table An2papers (line string);
+
+
+insert overwrite table An2papers select explode(ngrams(sentences(lower(txtline)), 2,100)) from apapers;
+
+
+##from the an2papers we have to further break it up to make it into a table and a count
+
+create table Agram2paper (w1 string, w2 string, bcount int);
+
+insert overwrite table Agram2paper select split(twowords, '\u0003')[0] as word1, split(twowords, '\u0003')[1] as word2, twocount from (select split(line, '\u0002')[0] as twowords, split(line, '\u0002')[1] as twocount from An2papers ) tc;
+
+
+##similar steps for n=3 games####
+
+select ngrams(sentences(lower(txtline)), 3, 100) from apapers;
+
+select explode(ngrams(sentences(lower(txtline)), 3, 100)) from apapers;
+
+
+create table An3papers (line string);
+
+
+insert overwrite table An3papers select explode(ngrams(sentences(lower(txtline)), 3,100)) from apapers;
+
+
+
+create table Agram3paper (w1 string, w2 string, w3 string, acount int);
+
+insert overwrite table Agram3paper select split(threewords, '\u0003')[0] as word1, split(threewords, '\u0003')[1] as word2, split(threewords, '\u0003')[2] as word3, threecount from (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[1] as threecount from An3papers) tca;
+
+
+#save jason files . go into text editor and save file extension as a .sh
+
+#put code below into the file.
+
+/usr/local/hadoop/bin/hdfs dfs -mkdir /Hivejson1
+/usr/local/hadoop/bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/customers.json /Hivejson1
+
+

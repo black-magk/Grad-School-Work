@@ -1,0 +1,151 @@
+d $HADOOP_PREFIX 
+$ ./hd_start
+
+#make pe3 directory 
+$ bin/hdfs dfs -mkdir /Pig/Movies
+bin/hdfs dfs -mkdir /Pig/rat500
+bin/hdfs dfs -mkdir /Pig/users
+
+
+
+ bin/hdfs dfs -mkdir /Pig/users
+#copy popbooks from shared filed
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/movies.txt /Pig/Movies
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/rat500.txt /Pig/rat500
+
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/users.txt /Pig/users
+
+run /media/sf_FilesFromHDFS/KDD/KDDOct20.pig;
+
+
+
+
+/* Load Movie Files 
+3/10/16			Karina Hauser
+*/
+
+m = load '/Pig/Movies' as (keym:int, name:bytearray, cate:bytearray);
+
+r = load '/Pig/rat500' as (keyr:int, movId:int, rat:int, time:int, date:bytearray);
+u = load '/movies/users' as (keyu:int, gender:bytearray, age:int, occ:int, zip:int);
+
+
+sc = JOIN s By course, c By courseID;
+
+
+gmov = GROUP r by movID;
+
+illustrate gmov;
+
+dump gmov;
+
+mr = FOREACH gmov GENERATE group, AVG(r.rat) as ratAvg;
+
+
+illustrate mr;
+
+mrt = join m by keym, mr by group;
+
+
+rmf /Pig/movies
+
+
+* any number of times
+
+. anything before
+
+
+
+---we only want romance movies, filter them out
+movrom = filter m by (cate matches '.*Romance.*');
+--then join to the avg rating table from above
+
+
+#Tokenize operator spilts a string up by delimineters
+
+
+m = LOAD "/Pig/Movies' as (keym_int, name:bytearray, cate:bytearray);
+
+mr = FOREACH m GENERATE keym, TOKENIZE(cate, '|') as cat;
+
+
+mt = FOREACH mr GENERATE keym, FLATTEN(cat) as category;
+
+avgr = foreach gmov generate group, AVG(r.rat) as ratAvg;
+
+
+alias = FOREACH { 
+do something;
+do something else;
+
+GENERATE something
+
+ENER}
+
+
+a = load 'num.txt' as (a1, n1:int, n2:int);
+
+b group a by a1;
+
+c = foreach b {
+	
+	s = foreac a generate n1+n2 as su:int;
+	generate group, SUM(s.su);
+
+}
+
+dump c;
+
+mrn = 
+
+mrg = GROUP mrn By mcat;
+
+mr10 = FOREACH mrg {
+	mro = ORDER mrn BY mcat DESC,
+		mratAvg DESC;
+	top10 = LIMIT mro 10;
+	GENERATE FLATTEN(top10)
+};
+}
+
+
+
+
+
+
+
+hdfs
+
+bin/hadoop dfsadmin -safemode leave
+
+
+
+
+a = LOAD '/faust/faust.txt' using TextLoader as (line:bytearray);
+
+illustrate a;
+
+
+a = LOAD '/faust/faust.txt' using TextLaoder as (line:bytearray);
+
+TOKENIZING creates bags of tuples
+b = foreach a generate TOKENIZE(line) as faustword;
+
+
+illustrate b:
+
+
+c = foreach b generate flatten(faustword) as fword;
+
+illustrate c;
+
+
+
+gw = group c by fword;
+
+sumw = foreach gw generate group, COUNT(c.fword) as sumword;
+
+sumord = order sumw by sumword DESC;

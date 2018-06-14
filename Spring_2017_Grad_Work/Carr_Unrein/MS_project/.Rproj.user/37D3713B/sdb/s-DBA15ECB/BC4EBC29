@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "\n#Solution to Maru Part II, Monte Carlo Simulation of Individual-Level CLV\n rm(list=ls())\n\n#read in maru data\nmaru.data<-read.csv(\"maru_data_assignment2.csv\")\n\n\n#CALCULATE ANNUAL MARGIN\nmaru.data$total.cost.per.hr<-maru.data$instructor.labor.cost.per.hr* maru.data$instructors.needed + maru.data$worker.labor.cost.per.hr* maru.data$workers.needed\nmaru.data$margin.hr<-maru.data$price.per.hr-maru.data$total.cost.per.hr\nmaru.data$annual.margin<-maru.data$margin.hr*maru.data$annual.hours\n\n# CALCULATE ACQUISITION COST\nmaru.data$acquisition.cost<-maru.data$contact.cost/maru.data$response.rate\n\n#Create a new column with CLV assuming numbers from case\nmaru.data$clv <- (maru.data$annual.margin* ((1+maru.data$interest.rate) / (1 + maru.data$interest.rate - maru.data$retention.rate))) - maru.data$acquisition.cost\n\n\nelite.ballplayers<-maru.data[4 ,]\nelite.ballplayers.subset<-subset(elite.ballplayers, select = c(\"acquisition.cost\",\"annual.margin\",\"retention.rate\"))\nelite.ballplayers.subset<-data.matrix(elite.ballplayers.subset)\n\n\n#CLV for elite ballplayers calcuated using aggregate values\nelite.ballplayers.clvaggregate<-maru.data$clv[4]\n\n\n\n\n#simulate CLV for a bunch of elite ballplayers\n\n# Set Seed for Random Number Generation\nset.seed(123456)\n\n\n#load in customer margin data and analyze it\nload(\"customers.rdata\")\nhist(customers)\nmargin.mean<-mean(customers)\nmargin.sd<-sd(customers)\n\n\nd<-.1\nac<-elite.ballplayers.subset[1]\nm<-elite.ballplayers.subset[2]\nr<-elite.ballplayers.subset[3]\n\nnum.samples=10000\n\nd.vec<-rep(d, num.samples)\nac.vec<-rep(ac, num.samples)\nm.vec<-rnorm(num.samples,margin.mean,margin.sd)\n\n#Use Beta distribution to determine retention rate value\n\n\n#Beta with slight skew \na<-5\nb<-a*(1-r)/r\nr.vec<-rbeta(num.samples,a,b)\nhist(r.vec, main= \"Retention Rate\")\n\n\n \n#Beta with \"Bathtub Shape\"\na<-.5\nb<-a*(1-r)/r\nr.vec<-rbeta(num.samples,a,b)\nhist(r.vec, main= \"Retention Rate\")\n\n \n \n#Beta with sharp peak\na<-100\nb<-a*(1-r)/r\nr.vec<-rbeta(num.samples,a,b)\nhist(r.vec, main= \"Retention Rate\")\n\n\n\n#CLV = (M * ( (1+d) / (1 + d - r))) - AC\nclv.vec=(m.vec* ((1+d.vec)/(1+d.vec-r.vec)))-ac.vec\n\nmean(clv.vec)\nmedian(clv.vec)\nhist(clv.vec, main = \"CLV\")\n \n\n \n#Create \"Whale Plot\" to depict value concentration\n \nwhale.data <- as.data.frame(clv.vec[order(-clv.vec)]) #sort customers decreasing order of CLV\ncolnames(whale.data)<-\"clv.ordered\"\n \nwhale.data$percent <- (whale.data$clv.ordered/sum(whale.data$clv.ordered))\nwhale.data$cumpercent<-100*cumsum(whale.data$percent)\n \nwhale.data$customernumber<-seq(1,num.samples)\nwhale.data$percentofcustomers<-100*whale.data$customernumber/num.samples\n \nplot(whale.data$percentofcustomers,whale.data$cumpercent, type=\"l\",\n        ylim=c(0,150),main=\"Whale Curve for Maru Batting\"\n        ,xlab = \"Percent of Customers\", ylab = \"Percent of Aggregate CLV\")\nabline(100,0,col=2)\n\nplot(whale.data$percentofcustomers,whale.data$clv.ordered, type=\"l\",\n      main=\"Whale Curve for Maru Batting\",\n     xlab = \"Percent of Customers\", ylab = \"Percent of Aggregate CLV\")\n \n \n\n\n",
+    "created" : 1490251704610.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2653108536",
+    "id" : "BC4EBC29",
+    "lastKnownWriteTime" : 1490251154,
+    "last_content_update" : 1490251154,
+    "path" : "~/Desktop/CustomerAnalytics/Maru Part 2 Solution - yanwen.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

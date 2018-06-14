@@ -1,0 +1,21 @@
+#start up the hadoop cluster
+cd
+cd $HADOOP_PREFIX
+./hd_start
+
+
+#bin/hdfs  dfs -copyFromLocal /media/sf_FilesFromHDFS/CompleteShakespeare.txt /msbx5420
+
+
+#java archive
+
+bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar wordcount /msbx5420 /msbx5420wc
+
+
+#removes the directory
+
+bin/hdfs dfs -rm /msbx5420/test/
+
+
+
+bin/hdfs dfs -rm -r  /msbx5420/test*

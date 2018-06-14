@@ -1,0 +1,102 @@
+﻿# create database
+
+create database smovies;
+#use  old database
+use movies;
+
+#create smovies table
+
+create table movies.smovies (mkey int, name varchar(100), category varchar(100)) row format delimited fields terminated by ',' stored as textfile;
+
+
+#insert data
+
+
+﻿insert overwrite table movies.smovies select c.mkey, c.category, m.name from category c join movies m on c.mkey = m.mkey;
+
+
+#copy table to smovies DB
+
+alter table smovies rename to smovies.smovies;
+
+#create susers table
+#problem with my users table and had to reupload data. resaved in shared folder as susers
+
+create external table movies.susers (mkey int, gender varchar(2), agegroup int, occupation int, zipcode int) row format delimited fields terminated by '\t' stored as textfile location '/movies/susers';
+
+#copt table to smovies DB
+alter table susers rename to smovies.susers;
+ 
+
+create table movies.sda (mkey int, name varchar(100), category varchar(100)) row format delimited fields terminated by ',' stored as textfile;
+
+#insert data
+
+
+insert overwrite table movies.sratingdate select rdate,FROM_UNIXTIME(rtime,'hh:mm:ss') as rtime, MONTH(FROM_UNIXTIME(rtime)) as rmonth, DAY(FROM_UNIXTIME(rtime))as rday from rat500 ;
+
+﻿
+
+
+
+
+#log into old DB
+use movies;
+
+#then call the table use just created in the old DB "in this example I created smovies in the old DB"
+
+#THen to copy smovies from the movies db to the new smovies db I used the code of line below
+
+alter table smovies rename to smovies.smovies; 
+
+select c.mkey, c.category, m.name from category c join movies m on c.mkey = m.mkey;
+﻿insert overwrite table movies.sratingdate select ukey as rkey, rdate, FROM_UNIXTIME(rtime,'hh:mm:ss') as rtime, MONTH(FROM_UNIXTIME(rtime)) as rmonth, DAY(FROM_UNIXTIME(rtime))as rday from rat500 ;
+
+#create tabke susers;
+
+
+create ﻿ create table movies.susers (rkey int, rdate DATE, rtime TIMESTAMP, rmonth int, rday int) row format delimited fields terminated by ',' stored as textfile;
+ table movies.sratingdate (ukey int, gender varchar(2), agegroup int, occupation int, zipcode int) row format delimited fields terminated by '\t' stored as textfile location '/movies/susers';
+ ﻿select u.ukey, r.rkey from  sratingdate r join susers u on u.ukey=r.rkey limit 5 ;
+ 
+ 
+ 
+  ﻿insert overwrite table movies.sratingdate select ukey as rkey, rdate, FROM_UNIXTIME(rtime,'hh:mm:ss') as rtime, MONTH(FROM_UNIXTIME(rtime)) as rmonth, DAY(FROM_UNIXTIME(rtime))as rday from rat500 ;
+
+
+#create sratingdate table
+
+﻿create table movies.sratingdate (rkey int, rdate varchar(50), rtime varchar(50), rmonth int, rday int) row format delimited fields terminated by ',' stored as textfile;
+
+#create sratings table
+
+﻿create table smovies.sratings (ukey int, mkey int, rkey int) row format delimited fields terminated by ',' stored as textfile;
+
+
+
+
+
+
+
+select newusers.occupation, count(rat500.rating) as CountRating from rat500 r join newusers u on u.mKey = r.mKey join movies m on m.mKey = r.mKey join category c on c.mKey = m.mKey where c.category = "Romance" group by newusers.occupation order by CountRating desc
+
+select newusers.occupation, count(rat500.rating) as CountRating from rat500 r join newuser nu on r.mkey= nu.ukey;
+
+
+﻿select count(u.occupation) as occupationcounter, u.occupation from smovies s join sratings r on s.mkey= r.mkey join susers u on r.ukey= u.ukey  WHERE s.name like 'Romance'  GROUP BY u.occupation; ORDER BY occupationcounter ASC;
+
+
+
+
+# search for max ratings per occupation when looking at Romance on new DB
+
+
+﻿select count(u.occupation) as occupationcounter, u.occupation 
+from smovies s join sratings r on s.mkey= r.mkey join susers u on r.ukey= u.ukey 
+ WHERE s.name like 'Romance'  GROUP BY u.occupation ORDER BY occupationcounter ASC;
+ 
+ 
+ #search for max ratings per occupation when looking at romance on old DB
+ 
+ select u.occupation, count(r.rating) as rcount from newusers u join rat500 r on u.mkey=r.mkey join movies m on r.mkey=m.mkey join category c on m.mkey=c.mkey WHERE c.category like 'Romance' GROUP BY u.occupation ORDER BY rcount ASC;
+ ;

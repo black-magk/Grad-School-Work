@@ -1,0 +1,16 @@
+{
+    "contents" : "#September 13, 2016\n\n#Sample code for ZEFR project that shows how to read in the YouTube data and create a data frame listing unique video IDs and cumulative views on the different dates.\n\n#install.packages(\"openxlsx\")\nlibrary(openxlsx) \n\nbrands <- c(\"mtdew\", \"reeses\", \"shocktop\", \"snickers\" )\ndataFiles <- paste0(\"data-F16/\",brands,\".xlsx\")\nobservationDates <- as.Date(c(\"2016-01-11\",\"2016-01-16\",\"2016-01-23\", \"2016-01-30\", \"2016-02-06\", \"2016-02-13\"))\n\n\ncolNamesForTables <- c(colnames(read.xlsx(dataFiles[1], sheet=1)), \"brandname\", \"datecollected\")\n\n#alldata is the master data frame to store all the data\nalldata <- data.frame()\n\n#Outer \"for\" loop = a loop through the four files.\nfor(fileIndex in 1:length(dataFiles)){\n  fileName <- dataFiles[fileIndex]\n  \n  #Inner \"for\" loop = a loop through the tabs in the spreadsheet.\n  for(tabIndex in 1:length(observationDates)){\n  \n    #read in a tab (worksheet) from the file. Save it in a dataframe I call dataFromTab.\n    dataFromTab <- read.xlsx(fileName, sheet=tabIndex)\n    #create column with brand\n    dataFromTab$brandname <- brands[fileIndex]   \n    #create column with date\n    dataFromTab$datecollected <- observationDates[tabIndex] \n    #add columns to master data frame (called alldata)\n    alldata <- rbind(alldata, dataFromTab[,colNamesForTables])\n  } #end for tabIndex\n} #end for fileIndex",
+    "created" : 1473706329986.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3131614669",
+    "id" : "3CBBAA97",
+    "lastKnownWriteTime" : 1473707993,
+    "path" : "C:/Teaching 1617 MBAX 6350/assignments/ZEFR for fall/zefrFall2016/1-read-in-all-data-from-files.R",
+    "project_path" : "1-read-in-all-data-from-files.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

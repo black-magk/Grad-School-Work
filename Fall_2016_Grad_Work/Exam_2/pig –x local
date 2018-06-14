@@ -1,0 +1,16 @@
+ pig –x local
+
+ then you need to change the script input file to your local file system '/media'/sf_nameOfYourFileFolder/filename.txt’
+
+ a = LOAD '/media/sf_FilesFromHDFS/germany.txt' using TextLoader as (line:bytearray);
+
+
+ b = LOAD '/media/sf_FilesFromHDFS/usa.txt' using TextLoader as (line:bytearray);
+
+
+tfile = filter a by line matches '.*href=.*';
+
+
+tfile2 = filter b by line matches '.*href=.*';
+
+tlinks = foreach tfile generate FLATTEN(REGEX_EXTRACT_ALL(line, '.*href=\\"(.*?)\\".*')) as link;

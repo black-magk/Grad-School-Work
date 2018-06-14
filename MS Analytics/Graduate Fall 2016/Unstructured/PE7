@@ -1,0 +1,42 @@
+
+/* bin/hdfs dfsadmin -safemode leave */
+
+/* bin/hdfs dfs -mkdir /PE7 */
+
+/* bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/KDDCleaned.txt /PE7 */
+
+
+
+
+
+a = LOAD '/KDD/KDDCupCleaned.txt' as (key:int, date:chararray, qty:float, amount:float, wd:chararray, city:chararray, st:chararray, customer:int);
+
+
+F = FOREACH a GENERATE *, qty*amount AS total:float ;
+
+groupd = group F by (st,wd);
+
+
+countL = FOREACH groupd GENERATE FLATTEN(group) AS (st,wd), SUM(F.total) as totalsum;
+
+test = group countL by st;
+
+
+
+test2 = FOREACH test { num1 = ORDER countL by totalsum DESC; top1 = LIMIT num1 1; GENERATE FLATTEN(top1);};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

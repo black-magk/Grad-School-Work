@@ -1,0 +1,75 @@
+
+
+
+/* Load code */
+
+
+cd $HADOOP_PREFIX
+
+hdfs dfsadmin -safemode leave
+
+
+./hb_start
+
+
+bin/hdfs dfs -mkdir /FINALHIVE
+
+bin/hdfs dfs -mkdir  /FINALHIVE/Tennistournament1
+
+bin/hdfs dfs -mkdir  /FINALHIVE/TennisMatches3
+
+bin/hdfs dfs -mkdir  /FINALHIVE/TennisSets1
+
+
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/TennisTournaments1.csv /FINALHIVE/Tennistournament1/Tennistournament1
+
+bin/hdfs dfs  -copyFromLocal /media/sf_FilesFromHDFS/TennisMatchesNEW.csv /FINALHIVE/TennisMatches3/TennisMatches3
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/TennisSets.csv /FINALHIVE/TennisSets1/TennisSets1
+
+
+
+
+create database finalhivecarr1;
+use finalhivecarr1;
+
+
+#Tennistournament
+atp	Location	Tournament	Series	Court	Surface	BestOf
+
+#TennisSets
+
+mKey int, mSet int,  Wgames int, Lgames int
+
+#TennisMatches
+
+mkey int, atp int,MatchDate string,Round string,Winner string,Loser string,	WRank int,	LRank int,	WPts int,	LPts int,	Wsets int, Lsets int)
+
+/*table creation */
+
+
+create external table Tennistournament1(atp int, Location string, Tournament String, Series string, Court string, Surface string, BestOf int) row format delimited fields terminated by ',' stored as textfile location '/FINALHIVE/Tennistournament1';
+
+create external table TennisMatches3(mkey int, atp int,Matchdate string, Round string, Winner string, Loser string, WRank int, LRank int, WPts int, LPts int, Wsets int, Lsets int, GameComment string) row format delimited fields terminated by ',' stored as textfile location '/FINALHIVE/TennisMatches3';
+
+create external table TennisSets2(mKey int, mSet int,  Wgames int, Lgames int) row format delimited fields terminated by ',' stored as textfile location '/FINALHIVE/TennisSets1';
+
+
+
+/* Partial query */
+
+select winner,loser from tennismatches3 WHERE GameComment == 'Retired';
+
+
+#87
+
+
+
+TASK 2: Connect tables together and find out what players won best of 5.... ran out of time to attempt
+
+
+
+
+
+

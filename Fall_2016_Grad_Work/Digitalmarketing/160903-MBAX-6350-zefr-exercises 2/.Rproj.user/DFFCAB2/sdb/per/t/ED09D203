@@ -1,0 +1,16 @@
+{
+    "contents" : "#Read in the Channel IDs of the all the official channels (primary and secondary)\nallOfficialChannels<- read.xlsx(\"data-F16/official-channels.xlsx\", sheet=1)\n#And then pull out just the primary official channels--there should be one for each brand.\nprimaryOfficialChannels <- allOfficialChannels[allOfficialChannels$is.primary==\"primary\",\"channel.ID\"]\n\n#extra the rows of the \"alldata\" data frame that represent videos posted by a primary channel\nofficialChannelData<-alldata[is.element(alldata$channel_id,primaryOfficialChannels),]\n",
+    "created" : 1473713476425.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3107125607",
+    "id" : "ED09D203",
+    "lastKnownWriteTime" : 1473713551,
+    "path" : "C:/Teaching 1617 MBAX 6350/assignments/ZEFR for fall/zefrFall2016/2-subset-the-primary-official-brand-content.R",
+    "project_path" : "2-subset-the-primary-official-brand-content.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

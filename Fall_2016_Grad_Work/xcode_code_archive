@@ -1,0 +1,336 @@
+//: Playground - noun: a place where people can play
+
+import UIKit
+
+var str = "Hello, playground"
+
+print(str)
+
+var name:String = "Landon"
+
+print(name)
+
+print("hello" + name + ".")
+
+var int:Double = 9
+
+int = int * 2
+
+int = int / 4
+
+var anotherInt:Double = 7
+
+// Double allows for decimal division
+
+print(int + anotherInt)
+
+
+print("The value of int is  \(int)")
+
+var number:Double = 100
+
+print(number * anotherInt)
+
+
+
+// you cannot combine different types. However you can convert back and forth by wrapping the variable
+
+
+print(Int(number))
+
+var isMale:Bool = true
+
+// True of False can be used in if statements
+
+
+// Double, String, Int, Bool 
+
+
+
+var test:Int = 5
+
+var testOne:Double = 5
+
+
+print("Hello the number you are looking for is /(test * Int(testOne))")
+
+// The array
+
+var array = [1, 2, 3, 4]
+
+var array2 = [1:4]
+
+print(array2)
+
+var array3 = [1, 2, "Hello", "test"] as [Any]
+
+
+var array4 = [17,25,13, 47 ]
+
+print(array4[2])
+
+
+// count items in an array
+
+
+print(array4.count)
+
+
+// to add to an array use ".append
+
+array4.append(56)
+
+
+// to remove from an array
+
+
+array4.remove(at: 3)
+
+
+//numerical or alphabetical order use .sort
+
+array4.sort()
+
+
+var array6 = [ 1 , 2, 3]
+
+array6.remove(at: 1)
+
+
+array6.append(array6[0] * array6[1])
+
+print(array6)
+
+// dictionaries are very similiar to arrays.
+
+var dictionary = ["computer": "Something to play Call of Duty", "Mouse" : "Used to controll the computer game"]
+
+print(dictionary["Mouse"]!)
+
+// unwrapping it with ! Tells the computer that you are certain it does indeed exist
+
+dictionary.count
+
+// create entries in dictionary
+
+
+dictionary["pen"] = " Old fashioned writing implement"
+
+
+print(dictionary)
+
+
+
+dictionary.removeValue(forKey: "Mouse")
+
+
+var dictionary1 = ["pizza": Int(25), "beer": Int(5), "Wings": Int(10)]
+
+
+var itemOne:Int = dictionary1["pizza"]!
+
+var itemTwo:Int = dictionary1["beer"]!
+var itemThree:Int = dictionary1["Wings"]!
+
+
+var totalCost:Int = itemOne + itemTwo + itemThree
+
+
+print("Your total cost today is \(totalCost)")
+
+// if statements
+
+var age = 20
+
+if age >= 18 {
+    
+    print("you can play")
+    
+} else {
+    
+    
+    print(" Sorry, your too young")
+    
+    
+}
+
+var name2 = "Rob"
+
+if name2 == "Rob" {
+    
+    print("hello" + name2  + " you can play")
+    
+    
+    
+    
+} else {
+    
+        print("hello" + name2 + "you cannot play")
+}
+
+
+
+if name2 == "Rob" && age >= 18 {
+    
+    print("you can play")
+    
+} else
+
+{
+    
+    print("fuck you. You cannot play")
+}
+
+// or symbol
+
+
+
+
+if name == "Rob" || name2 == "Rob" {
+    
+    
+    print("welcome" + name)
+} else {
+    
+    print("no go")
+}
+
+
+// example using else if statements and != for not equal
+
+var username:String = "Sam"
+
+var password:String = "hithere"
+
+if username == "Sam" && password == "hithere" {
+    
+        print(username + " you're in")
+    
+} else if username != "Sam" && password == "hithere" {
+
+
+        
+        print("Your username is wrong, but you password is correct")
+        
+} else if
+         username == "Sam" && password != "hithere"
+    
+{
+        
+        print("Your username is correct, but your password is wrong")
+            
+} else  {
+            
+            print("Both username and password are wrong")
+        }
+
+
+
+
+
+let diceRoll = Int(arc4random_uniform(UInt32(6)))
+
+
+print(diceRoll)
+
+
+
+
+@IBOutlet var numberTextField: UITextField!
+    
+    
+    @IBOutlet var resultLabel: UILabel!
+    
+
+    @IBAction func isITPrime(_ sender: Any) {
+        
+        if let number = Int(numberTextField.text!) {
+        
+        
+        var isPrime = true
+        
+        if number == 1 {
+            
+            
+            isPrime = false
+        }
+        
+        if number != 2 && number != 1 {
+            
+            for a in 2 ..< number {
+                
+                if  number % a == 0 {
+                    
+                    isPrime = false
+                }
+                
+            }
+            
+        }
+        
+        if isPrime {
+            
+            resultLabel.text = "\(number) is prime"
+        } else {
+            
+            resultLabel.text = "\(number) is not prime"
+            
+        }
+            
+        } else {
+            
+            resultLabel.text = "Please enter a whole number"
+            
+        }
+    }
+
+
+
+
+   var time = 0
+    
+    
+    
+    func result() {
+        
+        
+        time += 1
+        
+        print(time)
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        
+        
+        var timer = Timer()
+        
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(ViewController.result), userInfo: nil, repeats: true)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

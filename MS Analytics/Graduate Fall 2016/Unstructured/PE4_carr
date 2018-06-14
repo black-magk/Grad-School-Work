@@ -1,0 +1,186 @@
+#start hadoop
+cd $HADOOP_PREFIX 
+$ ./hd_start
+
+#make pe3 directory 
+$ bin/hdfs dfs -mkdir /PE3/A
+
+#copy popbooks from shared filed
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/APapers.txt /PE3/A
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/BPapers.txt /PE3/B
+
+
+
+#start hive up
+
+./hb_start
+
+#create database
+
+create database papers2;
+
+use papers2;
+
+
+#create external tables
+create external table papers2.apapers (txtline string) row format delimited fields terminated by ','stored as textfile location '/PE3/A';
+
+create external table papers2.bpapers (txtline string) row format delimited fields terminated by ','stored as textfile location '/PE3/B';
+
+######A_PAPER
+
+##begin splitting up orginal texts from characters/spaces/etc.
+
+select split(txtline, ' ') from apapers;
+
+select explode(split(txtline, ' ')) from apapers;
+
+select explode(split(lower(txtline), ' ')) from apapers;
+
+create temporary table atemp (atemp string); 
+
+insert overwrite table atemp select explode(split(lower(txtline), ' ')) from apapers;
+
+select regexp_extract(atemp, '.*?([a-z]+).*?') from atemp;
+
+
+#Order count of letters of length of words
+
+select apap, length(apap) as awordl from (select regexp_extract(atemp, '.*?([a-z]+).*?') as apap from atemp) bwc where apap <> ' ' group by apap order by awordl DESC limit 25;
+
+select bpap, length(bpap) as bwordl from (select regexp_extract(btemp, '.*?([a-z]+).*?') as bpap from btemp) bwcc where bpap <> ' ' group by bpap order by bwordl DESC limit 10;
+
+## place output in table
+
+
+create table aoutput (apap string, awordl int);
+
+insert overwrite table aoutput select apap, length(apap) as awordl from (select regexp_extract(atemp, '.*?([a-z]+).*?') as apap from atemp) bwc where apap <> ' ' group by apap order by awordl DESC limit 10;
+
+
+######B_PAPERS#######################
+
+select split(txtline, ' ') from bpapers;
+
+select explode(split(txtline, ' ')) from bpapers;
+
+select explode(split(lower(txtline), ' ')) from bpapers;
+
+create temporary table btemp (btemp string); 
+
+insert overwrite table btemp select explode(split(lower(txtline), ' ')) from bpapers;
+
+select regexp_extract(btemp, '.*?([a-z]+).*?') from btemp;
+
+
+
+select bpap, length(bpap) as bwordl from (select regexp_extract(btemp, '.*?([a-z]+).*?') as bpap from btemp) bwcc where bpap <> ' ' group by bpap order by bwordl DESC limit 10;
+
+
+
+
+create table boutput (bpap string, bwordl int);
+
+insert overwrite table boutput select bpap, length(bpap) as bwordl from (select regexp_extract(btemp, '.*?([a-z]+).*?') as bpap from btemp) bwc where bpap <> ' ' group by bpap order by bwordl DESC limit 10;
+
+#############ngrams (n=2)-A paper
+
+select ngrams(sentences(lower(txtline)), 2, 100) from apapers;
+
+
+select explode(ngrams(sentences(lower(txtline)), 2, 100)) from apapers;
+
+
+
+create table An2papers (line string);
+
+
+insert overwrite table An2papers select explode(ngrams(sentences(lower(txtline)), 2,100)) from apapers;
+
+
+create table Agram2paper (w1 string, w2 string, bcount int);
+
+insert overwrite table Agram2paper select split(twowords, '\u0003')[0] as word1, split(twowords, '\u0003')[1] as word2, twocount from (select split(line, '\u0002')[0] as twowords, split(line, '\u0002')[1] as twocount from An2papers ) tc;
+
+#############ngrams (n=2)-B paper
+
+select ngrams(sentences(lower(txtline)), 2, 100) from bpapers;
+
+
+select explode(ngrams(sentences(lower(txtline)), 2, 100)) from bpapers;
+
+
+
+create table Bn2papers (line string);
+
+
+insert overwrite table Bn2papers select explode(ngrams(sentences(lower(txtline)), 2,100)) from bpapers;
+
+
+create table Bgram2paper (w1 string, w2 string, bcount int);
+
+insert overwrite table Bgram2paper select split(twowords, '\u0003')[0] as word1, split(twowords, '\u0003')[1] as word2, twocount from (select split(line, '\u0002')[0] as twowords, split(line, '\u0002')[1] as twocount from Bn2papers ) tc;
+
+
+
+#####N-3 A paper
+
+
+select ngrams(sentences(lower(txtline)), 3, 100) from apapers;
+
+select explode(ngrams(sentences(lower(txtline)), 3, 100)) from apapers;
+
+
+create table An3papers (line string);
+
+
+insert overwrite table An3papers select explode(ngrams(sentences(lower(txtline)), 3,100)) from apapers;
+
+
+
+create table Agram3paper (w1 string, w2 string, w3 string, acount int);
+
+insert overwrite table Agram3paper select split(threewords, '\u0003')[0] as word1, split(threewords, '\u0003')[1] as word2, split(threewords, '\u0003')[2] as word3, threecount from (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[1] as threecount from An3papers) tca;
+
+
+select split(threewords, '\u0003')[0] as word1, split(threewords, '\u0003')[1] as word2, split(threewords, '\u0003')[2] as word3, threecount from (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[1] as threecount from An3papers) tca;
+
+ (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[q] as threecount from An3papers ) tca;
+
+
+(select split(line, '\u0002')[0] as twowords, split(line, '\u0002')[1] as twocount from ng2) tc;
+
+select * from Agram3paper;
+
+
+
+
+
+#####N-3 B paper
+
+elect ngrams(sentences(lower(txtline)), 3, 100) from bpapers;
+
+select explode(ngrams(sentences(lower(txtline)), 3, 100)) from bpapers;
+
+
+create table Bn3papers (line string);
+
+
+insert overwrite table Bn3papers select explode(ngrams(sentences(lower(txtline)), 3,100)) from bpapers;
+
+
+
+create table Bgram3paper (w1 string, w2 string, w3 string, acount int);
+
+insert overwrite table Bgram3paper select split(threewords, '\u0003')[0] as word1, split(threewords, '\u0003')[1] as word2, split(threewords, '\u0003')[2] as word3, threecount from (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[1] as threecount from Bn3papers) tcb;
+
+
+select split(threewords, '\u0003')[0] as word1, split(threewords, '\u0003')[1] as word2, split(threewords, '\u0003')[2] as word3, threecount from (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[1] as threecount from An3papers) tca;
+
+ (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[q] as threecount from An3papers ) tca;
+
+
+(select split(line, '\u0002')[0] as twowords, split(line, '\u0002')[1] as twocount from ng2) tc;
+
+

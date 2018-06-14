@@ -1,0 +1,47 @@
+create external table wc2.beowulf (txtline string) row format delimited fields terminated by ','stored as textfile location '/beowulf';
+
+create external table papers1.apapers (txtline string) row format delimited fields terminated by ','stored as textfile location '/PE3';
+
+
+
+﻿select split(txtline, ' ') from beowulf;
+
+
+select explode(split(txtline, ' ')) from beowulf;
+
+select regexp_extract(explode(split(lower(txtline), ' ')) '.*?([a-z]+).*?') from beowulf;
+
+
+
+
+insert overwrite table beowordsl select explode(split(lower(txtline), ' ')) from beowulf;
+
+
+#take out empty rows
+
+
+select bwlr, count(bwlr) from (select regexp_extract(bwordsl, '.*?([a-z]+).*?') as bwlr from beowordsl) bwc where bwlr <> ' ' group by bwlr;
+
+
+#create another table
+create table beoHiveWC (bword string, bcount int);
+
+
+insert overwrite table beoHiveWC select bwlr, count(bwlr) from (select regexp_extract(bwordsl, '.*?([a-z]+).*?') as bwlr from beowordsl) bwc where bwlr <> ' ' group by bwlr;
+
+
+
+INSERT OVERWRITE LOCAL DIRECTORY '/Desktop/FilesFromHDFS/temp' select bwlr, count(bwlr) from (select regexp_extract(bwordsl, '.*?([a-z]+).*?') as bwlr from beowordsl) bwc where bwlr <> ' ' group by bwlr;
+
+SELECT ngrams(sentences(lower(tweet)), 2, 100) FROM file;
+
+select xplode(ngrams(senetences(lower(txtline)), 2 100)) from beowulf;
+
+create table ng2 (line string);
+
+insert overwrite table ng2 select explode(ngrams(sentences(lowere(txtline)), 2 ,100)) from beowulf;
+
+create table bwNgram2 (w1 string, w2 string, bcount int);
+
+
+insert overwrite table bwNgram2 select split(twowords, '\u0003')[0] as word1, split(twowords, '\u0003')[1] as word2, twocount from (select split(line, '\u0002')[0] as twowords, split(line, '\u0002')[1] as twocount from ng2) tc;

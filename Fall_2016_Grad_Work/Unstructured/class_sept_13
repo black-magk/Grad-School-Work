@@ -1,0 +1,43 @@
+#Textfile
+#/r character field
+#/n line field
+
+# csv,tab, space, JSON
+
+#JSON javascript object notation =format for sharing data ,self describing, key values pairs
+#JSON trees exist..1st..2nd.3rd. etc level
+#well suited for sparse data
+
+/user/local/hadoop/bin/hdfs dfs -mkdir /Hivejson
+/user/local/hadoop/bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/HieveUnstructured/customers.json /Hivejson
+
+
+bash /media/sf_Fri
+
+﻿bash /media/sf_FilesFromHDFS/LoadjsonFile.sh
+
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/topbooks.txt /
+
+
+
+
+
+$ cd $HADOOP_PREFIX 
+$ ./hd_start
+
+#make directory 
+$ bin/hdfs dfs -mkdir /Hivejson
+
+copy over
+$ bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/customers.json /Hivejson 
+
+#run program
+$ bin/hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar wordcount /PE1 /PE1WC
+
+#copy word count doc to local file and call it topbooksWC 
+$ bin/hdfs dfs -copyToLocal /PE1WC/part-r-00000 /media/sf_SharedFilesHadoop/topbooksWC.txt 
+
+﻿select c.custId, c.custname, c.company,c.contact from customers j LATERAL VIEW json_tuple(j.jvalue, 'custId', 'custname', 'company', 'contact') c as custId, custname, company, contact;
+
+﻿select c.custId, c.custname, c.company, co.phone, co.email, co.website from customers j LATERAL VIEW json_tuple(j.jvalue, 'custId', 'custname', 'company', 'contact') c as custId, custname, company, contact LATERAL VIEW json_tuple(c.contact, 'phone', 'email', 'website') co as phone, email, website;

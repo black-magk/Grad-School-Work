@@ -1,0 +1,68 @@
+#start pig
+
+ pig
+
+
+#stop pig
+grunt> quit
+
+
+#fs- invokes any HDFS shell command
+sh invokes any linus shell command
+
+clear clears the screen
+
+exec executes a pig script
+
+#create KDD folder in HDFS  
+
+bin/hdfs dfs -mkdir /KDD/KDDCupCleaned
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/KDDCupCleaned.txt /KDD/KDDCupCleaned
+
+
+
+a = LOAD '/KDD/KDDCupCleaned';
+
+dump a;
+
+
+
+a = LOAD '/KDD/KDDCupCleaned' as (key:int, date:chararray, qty:float, amount:float, wd:chararray, city:chararray, st:chararray, customer:int);
+
+b = FOREACh a GENERATE key, $4, amount;
+
+
+STORE b INTO 'KDD/KDDCUpShort.txt' USING PigStorage('*');
+
+
+
+
+run /media/sf_FilesFromHDFS/KDDScript.pig
+
+
+
+exec /media/sf_FilesFromHDFS/KDDScript.pig
+
+
+sh mkdir -p /media/sf_FilesFromHDFS/KDD;
+
+
+sh rm -f /media/sf_FilesFromHDFS/KDD/KDDCupShort.text;
+
+
+
+fs -copyToLocal /KDD/KDDCupShort/part* /media/sf_FilesFromHDFS/KDD/KDDCupShort.txt;
+
+
+
+
+a = load 'a.txt as (s1:bytearray, n1:int);
+
+b = GROUP a BY s1;
+
+sumday = FOREACH b GENERATE group, SUM(a.n1);
+
+
+
+What day of the week do we sell the most?

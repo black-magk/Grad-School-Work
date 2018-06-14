@@ -1,0 +1,6 @@
+Last login: Tue Sep 27 11:14:49 on ttys000
+engr2-2-93-126-dhcp:~ landon$ /Users/landon/Downloads/TOS_BD-20160704_1411-V6.2.1\ 2/TOS_BD-macosx-cocoa.app/Contents/MacOS/TOS_BD-macosx-cocoa ; exit;
+[INFO] Setting property: classpath.resource.loader.class => 'org.codehaus.plexus.velocity.ContextClassLoaderResourceLoader'.
+[INFO] Setting property: velocimacro.messages.on => 'false'.
+[INFO] Setting property: resource.loader => 'classpath'.
+[INFO] Setting property: resource.manager.logwhenfound => 'false'.

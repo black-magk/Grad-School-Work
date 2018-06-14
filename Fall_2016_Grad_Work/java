@@ -1,0 +1,96 @@
+public class Main {
+	public static void main(String args[])
+	{
+		Print();
+	}
+	
+	public static void Print()
+	{
+		System.out.println("Hello World");
+	}
+	
+
+}
+
+
+////
+
+public class Main {
+	public static void main(String args[])
+	{
+		Print("Hello test");
+		Print("hello test 2");
+	}
+	//A parameter
+	public static void Print(String strMessage)
+	{
+		System.out.println(strMessage);
+	
+	}
+	
+	
+}
+
+
+
+/////
+
+public class SecondMain {
+	public static void main(String args[])
+	{
+		//declare an array
+		String[] arrToken = new String[7];
+		
+		//first array element starts from 0
+		arrToken[0] = "Learning";
+		arrToken[1] = "Hadoop";
+		arrToken[2]= "is";
+		arrToken[3]= "challenging";
+		arrToken[4] = "but";
+		arrToken[5] = "very";
+		arrToken[6] ="interesting!";
+	
+		
+		PrintArray.PrintMessage(arrToken,6);
+		
+	}
+
+}
+
+///
+
+
+public class PrintArray {
+	public static void PrintMessage(String[] arrInput, int intIndex)
+	{
+		System.out.println("The" +intIndex+ "th element is '"+arrInput[intIndex]+"'.");
+	}
+}
+
+
+/////
+
+
+public class SecondMain {
+	public static void main(String args[])
+	{
+		//declare an array
+		String[] arrToken = new String[7];
+		
+		//first array element starts from 0
+		arrToken[0] = "Learning";
+		arrToken[1] = "Hadoop";
+		arrToken[2]= "is";
+		arrToken[3]= "challenging";
+		arrToken[4] = "but";
+		arrToken[5] = "very";
+		arrToken[6] ="interesting!";
+	
+		
+		PrintArray.PrintMessageSimple(arrToken);
+		PrintArray.PrintMessageBasic(arrToken);
+		
+		
+	}
+
+}

@@ -1,0 +1,114 @@
+d $HADOOP_PREFIX 
+$ ./hd_start
+
+
+
+
+
+pig
+
+bin
+
+
+/* loading files into HDFS */
+
+$ bin/hdfs dfs -mkdir /PigFinal/Amazon
+
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/AmazonSentiment.csv /PigFinal1/Amazon1
+
+
+/* EACH QUERY TOOK OVER 5 MINUTES TO RUN */
+
+
+########
+
+/* load data */
+
+
+amazon = LOAD '/PigFinal/Amazon/AmazonSentiment.txt' USING PigStorage('\t') AS  (Sentence:chararray, Sentiment:int);
+
+
+/*Isolate sentiment */
+
+H = foreach amazon GENERATE Sentiment;
+
+
+/* Filter for 1 value */
+
+
+Sentimentone = filter amazon by Sentiment == 1;
+
+
+
+LOGS_GROUP = GROUP Sentimentone ALL;
+
+LOG_COUNT_2 = FOREACH LOGS_GROUP GENERATE COUNT(Sentimentone.Sentiment);
+
+
+#500
+
+
+/* Filter for 0 value */
+
+
+Sentimentzero = filter amazon by Sentiment == 0;
+
+
+
+LOGS_GROUP_4 = GROUP Sentimentzero ALL;
+
+LOG_COUNT_4 = FOREACH LOGS_GROUP_4 GENERATE COUNT(Sentimentzero.Sentiment);
+
+
+_______ / *already subsetted to find  top 10 words that are long based on "0" for negatives sentences */
+
+tokenizezero = foreach Sentimentzero generate flatten(Sentence) as sentence;
+
+
+flattenzero = foreach tokenizezero  generate flatten(Sentimentzero.Sentence) as sent;
+
+
+gw = group flattenzero by sent;
+
+
+sumw = foreach gw generate group, COUNT(flattenzero.sent) as sumword;
+
+sumord = order sumw by sumword DESC;
+
+
+
+____________ __ / *already subsetted to find  top 10 words that are long based on "1" for negatives sentences */
+
+
+tokenizeone = foreach Sentimentone generate flatten(Sentence) as sentence;
+
+
+flattenone = foreach tokenizeone generate flatten(Sentimentzero.Sentence) as senta;
+
+
+gw = group flattenone by sent;
+
+
+sumwa = foreach gw generate group, COUNT(flattenone.senta) as sumword;
+
+sumorda = order sumwa by sumword DESC;
+
+
+
+_____________
+
+
+/* I spent 45 minutes trying ot get the final table from the tennis hive problem. That took time away from the PIG. Additionally, my computer is running each query I ran to double check answers for approx 5 minutes. I couldnt efficiently debug my code.. THis is how I would of done it. ONce I had created a subset of the data based on poistive and negative reviews I would be able to flatten and tokenize the "Sentence" portion and rank them based on length. Very simple. SImply not enough time. Please take into consideration that these problems were very much like the previous two exams. I scored very well on these. I know what I am doing.. Trouble shooting...ram on computer dumping on me... I wasnt able to show you  my best effort.
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "\n# Assignment solultion to Maru Batting prepared by Yanwen WANG\n\n\n# SET WORKING DIRECTORY\n# setwd(\"E:/Dropbox/Teaching/CustomerAnalytics_2017/Lecture 3 - Customer Lifetime Value\")\n# READ DATA\nmaru.data<-read.csv(\"/Users/landon/Desktop/CustomerAnalytics/Assignmentspecific/maru_data_assignment2.csv\")\n\n\n# CALCULATE ANNUAL MARGIN\nmaru.data$total.cost.per.hr<-maru.data$instructor.labor.cost.per.hr* maru.data$instructors.needed + maru.data$worker.labor.cost.per.hr* maru.data$workers.needed\nmaru.data$margin.hr<-maru.data$price.per.hr-maru.data$total.cost.per.hr\nmaru.data$annual.margin<-maru.data$margin.hr*maru.data$annual.hours\n\n\n\n# answer to question 1 on page 5\n# CALCULATE ACQUISITION COST\nmaru.data$acquisition.cost<-maru.data$contact.cost/maru.data$response.rate\nmaru.data$acquisition.cost\n\n\n\n\n# answer to question 2\n# BREAKEVEN WITHOUT DISCOUNTING\nmaxperiod = 6\nperiod = seq(1,maxperiod)\n\ncf = matrix(0,nrow=5,ncol=maxperiod)\nnpv = matrix(0,nrow=5,ncol=maxperiod)\n\nfor (t in 1:maxperiod){\n  cf[,t] = maru.data$annual.margin*maru.data$retention.rate^(t-1)\n  npv[,t] = rowSums(as.matrix(cf[,1:t])) - maru.data$acquisition.cost\n}\n\n# print out cash flow matrix \ncf\n# print out npv to see since which period the npv>=0\nnpv\n# you can try the following instead of eyeballing\n#apply(npv,1, function(x) which.max(x>=0))\n\n\n\n\n# PROBLEM 3: COMPUTE CLV (ASSUMING INFINITE TIME HORIZON)\n#CLV = (M * ( (1+D) / (1 + D - R))) - AC Using formula #1\n#Create a new column with CLV assuming numbers from case\nmaru.data$clv <- (maru.data$annual.margin* ((1+maru.data$interest.rate) / (1 + maru.data$interest.rate - maru.data$retention.rate))) - maru.data$acquisition.cost\n\n# if you use formula 3...\n# maru.data$clv <- (maru.data$annual.margin / (1 + maru.data$interest.rate - maru.data$retention.rate)) - maru.data$acquisition.cost\n\n\n\n# PROBLEM 5: CHIYODA WARD\nclv.littleleaguers.now<-maru.data[maru.data$X==\"little leaguers\",]$clv\nclv.littleleaguers.chiyoda<-5000*(1+.1)/(1+.1-.65)-(600/.08)\nclv.littleleaguers.now\nclv.littleleaguers.chiyoda\n\n\n\n# PROBLEM 6: ELITE BALLPLAYERS DISCOUNT\n\nclv.eliteballplayers.now<-maru.data$clv[which(maru.data$X==\"elite ballplayers (party)\")]\nclv.eliteballplayers.discount<-((7000-6000)*20)*(1+.1)/(1+.1-.75)-(50000)+500*20\n\n\n# PROBLEM 7: ELITE BALLPLAYERS BAT\nclv.eliteballplayers.bat<-((7500-6000)*20)*(1+.1)/(1+.1-.6)-(12500/.29+10000)\n\n\n\n\n# SENSITIVITY ANALYSIS\n\n#creates scenario values\nac <- seq(from = 40000, to = 60000, by = 5000)\nam <- seq(from = 20000, to = 40000, by = 5000)\nrr <- seq(from = 0.30, to = 0.90, by = 0.12)\n\n#Matrix of all pairwise comparisons\n\nvalues <- expand.grid(ac=ac,am=am,rr=rr)\n\n#adds constant interest rate column\nvalues$ir <- 0.10\n\n#computes CLV for all scenarios\nvalues$clv <- values$am * ( (1+values$ir) / (1 + values$ir - values$rr)) - values$ac\n\nwrite.csv(values,\"sensitivity.csv\",row.names=F)\n\n\n#some descriptives\nnegativeclvpercent = sum(values$clv < 0)/ length(values$clv)\nworsethanlittleleaguerspercent=sum(values$clv < maru.data$clv[1])/length(values$clv)\n\n\n#visualization using scatter plot\nscatter.smooth(x=values$ac, y=values$clv)\nscatter.smooth(x=values$am, y=values$clv)\nscatter.smooth(x=values$rr, y=values$clv)\n\n",
+    "created" : 1490251408730.000,
+    "dirty" : true,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1876614698",
+    "id" : "74406E6D",
+    "lastKnownWriteTime" : 1490251134,
+    "last_content_update" : 1490251469517,
+    "path" : "~/Desktop/CustomerAnalytics/Maru Part 1 Solution - yanwen.R",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

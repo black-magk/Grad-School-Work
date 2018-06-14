@@ -1,0 +1,48 @@
+$ bin/hdfs dfs -mkdir /MidtermPractice
+
+#copy popbooks from shared filed
+
+bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/mails.csv /MidtermPratice
+
+
+
+create database Midtermpractice;
+
+use Midtermpractice;
+
+create external table Midtermpractice.mails (mid int, sender string, edate varchar(50), message_id string,subject string, body string, folder string) row format delimited fields terminated by ','stored as textfile location '/MidtermPractice';
+
+select sender,count(sender)as numberofsent from mails1 group by sender order by numberofsent DESC limit 5;
+
+
+
+create table aoutput (apap string, awordl int);
+
+insert overwrite table aoutput select apap, length(apap) as awordl from (select regexp_extract(atemp, '.*?([a-z]+).*?') as apap from atemp) bwc where apap <> ' ' group by apap order by awordl DESC limit 10;
+
+
+select UNIX_TIMESTAMP(edate) from mails limit 5;
+
+
+
+select split(edate,' ')[0], count(split(edate,' ')[0]) as Count from mails1 group by split(edate,' ')[0] order by Count DESC;
+
+
+
+select ngrams(sentences(lower(txtline)), 3, 100) from apapers;
+
+select explode(ngrams(sentences(lower(txtline)), 3, 100)) from apapers;
+
+
+create table An3body (line string);
+
+
+insert overwrite table An3body select explode(ngrams(sentences(lower(body)), 3,100)) from mails1;
+
+
+
+create table Agrambody (w1 string, w2 string, w3 string, acount int);
+
+insert overwrite table Agrambody select split(threewords, '\u0003')[0] as word1, split(threewords, '\u0003')[1] as word2, split(threewords, '\u0003')[2] as word3, threecount from (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[1] as threecount from An3body) tca;
+
+

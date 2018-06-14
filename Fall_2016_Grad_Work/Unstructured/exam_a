@@ -1,0 +1,151 @@
+﻿bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/Trump.txt /exam/t
+﻿bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/Clinton.txt /exam/c
+
+
+create database exam;
+
+use exam;
+
+create external table exam.clinton (txtline string) row format delimited fields terminated by ','stored as textfile location '/exam/c';
+create external table exam.trump (txtline string) row format delimited fields terminated by ','stored as textfile location '/exam/t';
+
+###CLINTON####
+select split(txtline, ' ') from clinton;
+
+select explode(split(txtline, ' ')) from clinton;
+
+select explode(split(lower(txtline), ' ')) from clinton;
+
+create temporary table ctemp (ctemp string); 
+
+insert overwrite table ctemp select explode(split(lower(txtline), ' ')) from clinton;
+
+
+
+# number of words- 3632 rows
+select regexp_extract(ctemp, '.*?([a-z]+).*?') from ctemp;
+
+
+
+####TRUMP#####
+
+select split(txtline, ' ') from trump;
+
+select explode(split(txtline, ' ')) from trump;
+
+select explode(split(lower(txtline), ' ')) from trump;
+
+create temporary table ttemp (ttemp string); 
+
+insert overwrite table ttemp select explode(split(lower(txtline), ' ')) from trump;
+
+
+
+# number of words 1582
+select regexp_extract(ctemp, '.*?([a-z]+).*?') from ctemp;
+
+
+
+#top 20- trump
+select regexp_extract(ttemp, '.*?([a-z]+).*?'),count(regexp_extract(ttemp, '.*?([a-z]+).*?')) as count from ttemp group by regexp_extract(ttemp, '.*?([a-z]+).*?') order by count DESC limit 20;
+
+
+
+
+
+#20- clinton
+
+select regexp_extract(ctemp, '.*?([a-z]+).*?'),count(regexp_extract(ctemp, '.*?([a-z]+).*?')) as count from ctemp group by regexp_extract(ctemp, '.*?([a-z]+).*?') order by count DESC limit 20;
+
+
+###shared and count#####
+ 
+ 
+SELECT ttemp.ttemp FROM ttemp LEFT JOIN ctemp ON ttemp.ttemp = ctemp.ctemp limit 10;
+
+###CLINTON#### N=3
+
+select ngrams(sentences(lower(txtline)), 3, 100) from clinton;
+
+select explode(ngrams(sentences(lower(txtline)), 3, 100)) from clinton;
+
+
+create table n3clinton (line string);
+
+
+insert overwrite table n3clinton select explode(ngrams(sentences(lower(txtline)), 3,100)) from clinton;
+
+
+
+create table n3clintonfinal (w1 string, w2 string, w3 string, acount int);
+
+insert overwrite table n3clintonfinal select split(threewords, '\u0003')[0] as word1, split(threewords, '\u0003')[1] as word2, split(threewords, '\u0003')[2] as word3, threecount from (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[1] as threecount from n3clinton) tca;
+
+
+select * from n3clintonfinal limit 10;
+####TRUMP###### N=3
+
+select ngrams(sentences(lower(txtline)), 3, 100) from trump;
+
+select explode(ngrams(sentences(lower(txtline)), 3, 100)) from trump;
+
+
+create table n3trump (line string);
+
+
+insert overwrite table n3trump select explode(ngrams(sentences(lower(txtline)), 3,100)) from trump;
+
+
+
+create table n3trumpfinal (w1 string, w2 string, w3 string, acount int);
+
+insert overwrite table n3trumpfinal select split(threewords, '\u0003')[0] as word1, split(threewords, '\u0003')[1] as word2, split(threewords, '\u0003')[2] as word3, threecount from (select split(line, '\u0002')[0] as threewords, split(line, '\u0002')[1] as threecount from n3trump) tcb;
+
+select * from n3trumpfinal limit 10;
+
+
+#####CLINTON N=4#####
+
+select ngrams(sentences(lower(txtline)), 4, 100) from clinton;
+
+select explode(ngrams(sentences(lower(txtline)), 4, 100)) from clinton;
+
+
+create table n4clinton (line string);
+
+
+insert overwrite table n4clinton select explode(ngrams(sentences(lower(txtline)), 4,100)) from clinton;
+
+
+
+create table n4clintonfinal (w1 string, w2 string, w3 string, w4 string, acount int);
+
+insert overwrite table n4clintonfinal select split(fourwords, '\u0003')[0] as word1, split(fourwords, '\u0003')[1] as word2, split(fourwords, '\u0003')[2] as word3, split(fourwords, '\u0003')[2] as word4, fourcount from (select split(line, '\u0002')[0] as fourwords, split(line, '\u0002')[1] as fourcount from n4clinton) tcz;
+
+select * from n4clintonfinal limit 10;
+
+
+
+
+####TRUMP N=4
+
+
+select ngrams(sentences(lower(txtline)), 4, 100) from trump;
+
+select explode(ngrams(sentences(lower(txtline)), 4, 100)) from trump;
+
+
+create table n4trump (line string);
+
+
+insert overwrite table n4trump select explode(ngrams(sentences(lower(txtline)), 4,100)) from trump;
+
+
+
+create table n4trumpfinal (w1 string, w2 string, w3 string, w4 string, acount int);
+
+insert overwrite table n4trumpfinal select split(fourwords, '\u0003')[0] as word1, split(fourwords, '\u0003')[1] as word2, split(fourwords, '\u0003')[2] as word3, split(fourwords, '\u0003')[2] as word4, fourcount from (select split(line, '\u0002')[0] as fourwords, split(line, '\u0002')[1] as fourcount from n4trump) tcy;
+
+select * from n4trumpfinal limit 10;
+
+

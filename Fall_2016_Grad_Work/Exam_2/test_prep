@@ -1,0 +1,245 @@
+/* Start in local mode */
+
+cd $HADOOP_PREFIX
+
+ pig –x local
+
+ pig
+
+
+ /* run a script */
+
+ run /media/sf_FilesFromHDFS/PigScripts/KDDStateDayLocal.pig
+
+
+
+ /* load from local */
+
+a = LOAD '/media/sf_FilesFromHDFS/KDDCupCleaned.txt' as (key:int, date:chararray, qty:float, amount:float, wd:chararray, city:chararray, st:chararray, customer:int);
+
+
+
+/* create a table from a that includes three columns; in this example st, wd, amount */
+
+b = FOREACH a GENERATE st, wd, amount;
+
+/* now that you have a table to work from you can begin to group specifically; in this case by state name first then weekday */
+
+c = GROUP b BY (st, wd);
+
+
+/* Takes the line of c thats tokenized and turn it into column with tokenize function */
+
+
+d = foreach c generate FLATTEN(group) as (sstate, swd), SUM(b.amount) as ssum;
+
+/* back to string */
+
+e = group d by sstate; 
+
+/* limits to the first entry after ordering the sum you created to the first one to gain highest ssum count */
+
+f = foreach e {
+			oswd = ORDER d by ssum DESC;
+			top1 = limit oswd 1;
+			GENERATE FLATTEN(top1);
+}
+
+
+/* STORE DATA IN OTHER FILE and store as a csv file */
+
+STORE f INTO '/media/sf_FilesFromHDFS/test_test/stateWeekday' USING PigStorage(',');
+
+sh mv /media/sf_FilesFromHDFS/test_test/stateWeekday/part* /media/sf_FilesFromHDFS/test_test/stateWeekday/stateWeekday1.csv
+
+
+/* Practice with Joins */
+
+
+m = LOAD '/media/sf_FilesFromHDFS/movies.txt' as (keym:int, name:bytearray, cate:bytearray);
+
+r = load '/media/sf_FilesFromHDFS/rat500.txt' as (keyr:int, movId:int, rat:int, time:int, date:bytearray);
+
+u = load '/media/sf_FilesFromHDFS/users.txt' as (keyu:int, gender:bytearray, age:int, occ:int, zip:int);
+
+
+gmov = GROUP r by movId;
+
+/* takes gmov table(that groups ratings by movieID) and makes table including the avg rating */
+
+mr = FOREACH gmov GENERATE group, AVG(r.rat) as ratAvg;
+
+
+/* join m by keym on mr that includes avg rating per movie */
+
+mrt = join m by keym, mr by group;
+
+
+/* to filter out to only have romantic films */
+
+movrom = filter m by (cate matches '.*Romance.*');
+
+/* for some reason join by group for secondary
+movromm = join movrom by keym, mr by group;
+
+movrommm = FOREACH movromm GENERATE keym, name, ratAvg;
+
+
+/*  */
+
+
+/* TAKE OUT HYPERLINKS */
+
+t = LOAD '/media/sf_FilesFromHDFS/germany.txt' using TextLoader as line:chararray; 
+
+tfil = filter t by line matches '.*href=.*';
+
+
+tlinks = foreach tfil generate FLATTEN(REGEX_EXTRACT_ALL(line, '.*href=\\"(.*?)\\".*' )) as link; 
+
+
+
+/* make directory if not exists and remove file*/
+sh mkdir -p /media/sf_HDFSFiles/PE1/pe1;
+sh rm -rf /media/sf_HDFSFiles/PE1/pe1;
+
+/* store data */
+STORE tlinks INTO '/media/sf_FilesFromHDFS/test_test/tlinks' USING PigStorage(',') ;
+
+sh mv /media/sf_FilesFromHDFS/test_test/tlinks/part* /media/sf_FilesFromHDFS/test_test/tlinks/tlinks.csv
+
+
+/* number 2 */ /* Count words in text file with conversion to lower case and special characters removed */
+
+a = LOAD '/media/sf_FilesFromHDFS/germany.txt' using TextLoader as line:bytearray; 
+
+b = foreach a generate TOKENIZE(line) as singleword;
+
+f = foreach b generate flatten(singleword) as oneWord;
+
+g = foreach f generate LOWER(oneWord) as wordUC;
+
+c = foreach g generate FLATTEN(REGEX_EXTRACT_ALL(wordUC, '.*?([a-zà-ÿ]+).*?')) as justWords;
+
+
+gw = group c by justWords;
+
+sumw = foreach gw generate FLATTEN((chararray)group), COUNT(c.justWords) as sumword;
+
+w5 = filter sumw by SIZE(group) > 5 and sumword > 30;
+
+
+/* make directory if not exists and remove file*/
+sh mkdir -p /media/sf_HDFSFiles/PE1/pe2g;
+sh rm -rf /media/sf_HDFSFiles/PE1/pe2g;
+
+/* store data */
+STORE w5 INTO '/media/sf_FilesFromHDFS/test_test/pe2g/' USING PigStorage(',');
+sh mv /media/sf_FilesFromHDFS/test_test/pe2g/part* /media/sf_FilesFromHDFS/test_test/pe2g/ger30.txt
+
+
+
+
+
+/*FOR USA text */
+
+/* Count words in text file with conversion to lower case and special characters removed
+Karina Hauser
+run /media/sf_HDFSFiles/PE1/P2u.pig
+10/31/2016*/
+
+a = LOAD '/media/sf_FilesFromHDFS/usa.txt' using TextLoader as line:bytearray; 
+
+b = foreach a generate TOKENIZE(line) as singleword;
+
+f = foreach b generate flatten(singleword) as oneWord;
+
+g = foreach f generate LOWER(oneWord) as wordUC;
+
+c = foreach g generate FLATTEN(REGEX_EXTRACT_ALL(wordUC, '.*?([a-zà-ÿ]+).*?')) as justWords;
+
+gw = group c by justWords;
+
+sumw = foreach gw generate FLATTEN((chararray)group), COUNT(c.justWords) as sumword;
+
+w6 = filter sumw by SIZE(group) > 5 and sumword > 30;
+
+
+/* make directory if not exists and remove file*/
+sh mkdir -p /media/sf_HDFSFiles/PE1/pe2u;
+sh rm -rf /media/sf_HDFSFiles/PE1/pe2u;
+
+/* store data */
+STORE w6 INTO '/media/sf_FilesFromHDFS/test_test/pe2u/' USING PigStorage(',');
+sh mv /media/sf_FilesFromHDFS/test_test/pe2u/part* /media/sf_FilesFromHDFS/test_test/pe2u/usa30.txt
+
+/* use two files fromt ask 2 to create a file that shows the words that are common to both sites and how often they are used on both sites, individual and together */
+
+
+/* Find common words in two files
+Karina Hauser
+run /media/sf_HDFSFiles/PE1/P3.pig
+10/31/2016*/
+
+u = LOAD '/media/sf_FilesFromHDFS/test_test/pe2u/usa30.txt' using PigStorage(',') as (uword:chararray, unumOcc:int);
+
+g = LOAD '/media/sf_FilesFromHDFS/test_test/pe2g/ger30.txt' using PigStorage(',') as (gword:chararray, gnumOcc:int);
+
+ug = join u by uword, g by gword;
+
+ugs = foreach ug generate u::uword, 'USA:', u::unumOcc, 'Germany:', g::gnumOcc, 'Together:',  u::unumOcc+g::gnumOcc as wordSum:int;
+
+/* make directory if not exists and remove file*/
+sh mkdir -p /media/sf_HDFSFiles/PE1/pe3;
+sh rm -rf /media/sf_HDFSFiles/PE1/pe3;
+
+/* store data */
+STORE ugs INTO '/media/sf_HDFSFiles/PE1/pe3/' USING PigStorage(',');
+sh mv /media/sf_HDFSFiles/PE1/pe3/part* /media/sf_HDFSFiles/PE1/pe3/gerusa.txt
+
+
+
+/* PE7 */
+
+/* bin/hdfs dfsadmin -safemode leave */
+
+/* bin/hdfs dfs -mkdir /PE7 */
+
+/* bin/hdfs dfs -copyFromLocal /media/sf_FilesFromHDFS/KDDCleaned.txt /PE7 */
+
+
+
+
+
+a = LOAD '/media/sf_FilesFromHDFS/KDDCupCleaned.txt' as (key:int, date:chararray, qty:float, amount:float, wd:chararray, city:chararray, st:chararray, customer:int);
+
+
+F = FOREACH a GENERATE *, qty*amount AS total:float ;
+
+groupd = group F by (st,wd);
+
+
+countL = FOREACH groupd GENERATE FLATTEN(group) AS (st,wd), SUM(F.total) as totalsum;
+
+test = group countL by st;
+
+
+
+test2 = FOREACH test { num1 = ORDER countL by totalsum DESC; top1 = LIMIT num1 1; GENERATE FLATTEN(top1);};
+
+
+
+
+/* testing your progress of loading regex expressions */ 
+
+emails = LOAD '/media/sf_FilesFromHDFS/emails.txt' using TextLoader as line:bytearray; 
+
+
+
+b = foreach emails generate TOKENIZE(line) as singleword;
+
+f = foreach b generate flatten(singleword) as oneWord;
+
+g = foreach f generate LOWER(oneWord) as wordUC;
+
+c = foreach g generate FLATTEN(REGEX_EXTRACT_ALL(wordUC, '^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$')) as emailspull;
